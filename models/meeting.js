@@ -33,4 +33,18 @@ const meetingSchema = new Schema({
     ]
 })
 
-module.exports = mongoose.Model('Meeting', meetingSchema)
+meetingSchema.methods.addAttendee = function (attendeeId) {
+    this.attendees.push(attendeeId)
+    return this.save()
+}
+
+meetingSchema.methods.removeAttendee = function (attendeeId) {
+    const idx = this.attendees.indexOf(attendeeId)
+    if (idx > -1) {
+        this.attendees.splice(idx, 1)
+        return this.save()
+    }
+    throw new Error('Attendee not found!')
+}
+
+module.exports = mongoose.model('Meeting', meetingSchema)

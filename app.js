@@ -24,7 +24,7 @@ app.use((req, res, next) => {
 })
 
 app.use(authRouter)
-app.use(meetRouter)
+app.use("/meeting", meetRouter)
 
 mongoose.connect('mongodb://localhost:27017/Calendar', { 
     useNewUrlParser: true,
