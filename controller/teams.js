@@ -1,46 +1,46 @@
 const User = require('../models/user')
-const Meeting = require('../models/meeting')
+const Team = require('../models/team')
 
 
-const removeUserFromMeeting = async (req, res) => {
+const removeUserFromTeam = async (req, res) => {
     try {
         const userEmail = req.body.email
-        const meetingId = req.body.meetingId
+        const teamId = req.body.teamId
     
         const user = await User.findOne({email: userEmail})
-        const meeting = await Meeting.findById(meetingId)
+        const team = await Team.findById(teamId)
 
-        console.log(user._id, meeting._id)
+        console.log(user._id, team._id)
     
-        await meeting.removeAttendee(user._id)
-        await user.removeMeeting(meeting._id)
+        await team.removeAttendee(user._id)
+        await user.removeTeam(team._id)
 
-        res.status(200).send({ message: 'Meeting edited successfully' })
+        res.status(200).send({ message: 'Team edited successfully' })
     }
     catch (err) {
         res.status(404).send({ error: err.message })
     }
 }
 
-const addUserToMeeting = async (req, res) => {
+const addUserToTeam = async (req, res) => {
     try {
         const userEmail = req.body.email
-        const meetingId = req.body.meetingId
+        const teamId = req.body.teamId
     
         const user = await User.findOne({email: userEmail})
-        const meeting = await Meeting.findById(meetingId)
+        const team = await Team.findById(teamId)
     
-        await meeting.addAttendee(user._id)
-        await user.addMeeting(meeting._id)
+        await team.addAttendee(user._id)
+        await user.addTeam(team._id)
 
-        res.status(200).send({ message: 'Meeting edited successfully' })
+        res.status(200).send({ message: 'Team edited successfully' })
     }
     catch (err) {
         res.status(404).send({ error: err.message })
     }
 }
 
-const postCreateMeeting = async (req, res) => {
+const postCreateTeam = async (req, res) => {
     try {
         if (!req.session.user) 
             return res.status(404).send({ message: 'No user selected' })
@@ -61,7 +61,7 @@ const postCreateMeeting = async (req, res) => {
         const attendees = await User.find({email: { $in: attendeesEmail }})
 
         const attendeesId = attendees.map(attendee => attendee._id)
-        const meeting = new Meeting({
+        const team = new Team({
             title,
             description,
             date,
@@ -70,16 +70,16 @@ const postCreateMeeting = async (req, res) => {
             organizer: user._id,
             attendees: attendeesId
         })
-        const savedMeeting = await meeting.save()
-        attendees.forEach(attendee => attendee.addMeeting(savedMeeting._id))
-        res.status(200).send({ message: 'Meeting created successfully' })
+        const savedTeam = await team.save()
+        attendees.forEach(attendee => attendee.addTeam(savedTeam._id))
+        res.status(200).send({ message: 'Team created successfully' })
     }
     catch (err) {
         res.status(404).send({ error: err.message })
     }
 }
 
-const getMeetings = async (req, res) => {
+const getTeams = async (req, res) => {
     try {
         if (!req.session.user) 
             return res.status(404).send({ message: 'No user selected' })
@@ -89,7 +89,7 @@ const getMeetings = async (req, res) => {
         const startTime = req.body.startTime
         const endTime = req.body.endTime
         user = await User.populate(user, {
-                                    path: 'meetings',
+                                    path: 'teams',
                                     match: { 
                                         date: date,
                                         startTime: { 
@@ -99,41 +99,16 @@ const getMeetings = async (req, res) => {
                                     }
                                 })
         
-        res.status(200).send(user.meetings)
+        res.status(200).send(user.teams)
     }
     catch(err) {
         res.status(404).send({ error: err.message })
     }
 }
 
-const filterMeetings = async (req, res) => {
-    try {
-        const phrase = req.body.phrase
-        const user = req.session.user
-        if (!user) 
-            res.status(404).send({ message: 'User not found!' })
-
-        const full_user = await User.populate(user, {
-            path: 'meetings',
-            match: {
-                $or: [
-                    { "title": { $regex: phrase, $options: 'i' } },
-                    { "description": { $regex: phrase, $options: 'i' } }
-                ]
-            }
-        })
-
-        res.status(200).send(full_user.meetings)
-    }
-    catch (err) {
-        res.status(404).send({ error: err.message })
-    }
-}
-
 module.exports = {
-    removeUserFromMeeting,
-    addUserToMeeting,
-    postCreateMeeting,
-    getMeetings,
-    filterMeetings
+    removeUserFromTeam,
+    addUserToTeam,
+    postCreateTeam,
+    getTeams
 }

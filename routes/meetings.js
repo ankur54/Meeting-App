@@ -6,7 +6,7 @@ const router = express.Router()
 
 router.get('/', meetingController.getMeetings)
 
-router.post('/add', meetingController.postAddMeeting)
+router.post('/add', meetingController.postCreateMeeting)
 
 router.post('/del-user', meetingController.removeUserFromMeeting)
 

@@ -1,32 +1,40 @@
 const express = require('express')
 const mongoose = require('mongoose')
+const session = require('express-session')
+const mongoDBStore = require('connect-mongodb-session')(session)
 
 const authRouter = require('./routes/auth')
 const meetRouter = require('./routes/meetings')
-const User = require('./models/user')
+const teamRouter = require('./routes/teams')
 
+const MONGODB_URI = 'mongodb://localhost:27017/Calendar'
+
+// initializing the middlewares
 const app = express()
-
-app.use(express.json())
-app.use(express.urlencoded())
-
-// dummy way to set user for now --> need to change to session set user
-app.use((req, res, next) => {
-    User.findOne()
-        .then(user => {
-            if (user) {
-                req.user = user
-                next()
-            }
-            else throw 'No user found!'
-        })
-        .catch(err => console.log(err))
+const store = mongoDBStore({
+    uri: MONGODB_URI,
+    collection: 'session'
+})
+const expressSession = session({
+    secret: 'doreamon',
+    resave: false,
+    saveUninitialized: false,
+    store: store,
 })
 
+
+// using the middlewares
+app.use(express.json())
+app.use(express.urlencoded())
+app.use(expressSession)
+
+// branching requests to respective routes
 app.use(authRouter)
 app.use("/meeting", meetRouter)
+app.use("/team", teamRouter)
 
-mongoose.connect('mongodb://localhost:27017/Calendar', { 
+// connect mongodb server using mongoose and start listening on port 8000
+mongoose.connect(MONGODB_URI, { 
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
