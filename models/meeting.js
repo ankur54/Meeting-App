@@ -34,8 +34,11 @@ const meetingSchema = new Schema({
 })
 
 meetingSchema.methods.addAttendee = function (attendeeId) {
-    this.attendees.push(attendeeId)
-    return this.save()
+    if (!this.attendees.includes(attendeeId.toString())) {
+        this.attendees.push(attendeeId)
+        return this.save()
+    }
+    throw new Error('User already present')
 }
 
 meetingSchema.methods.removeAttendee = function (attendeeId) {

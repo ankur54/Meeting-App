@@ -27,8 +27,11 @@ const addUserToMeeting = async (req, res) => {
         const userEmail = req.body.email
         const meetingId = req.body.meetingId
     
-        const user = await User.find({email: userEmail})
+        const user = await User.findOne({email: userEmail})
         const meeting = await Meeting.findById(meetingId)
+
+        console.log(user)
+        console.log(meeting)
     
         await meeting.addAttendee(user._id)
         await user.addMeeting(meeting._id)
@@ -59,7 +62,9 @@ const postAddMeeting = async (req, res) => {
     
         // create new Meeting Object and store in DB
         // const attendees = await Promise.all(attendeesPromise)
-        attendees.push(req.user)
+        const existingUser = attendees.find(member => member._id.toString() === req.user._id.toString())
+        if (undefined === existingUser) 
+            attendees.push(req.user)
 
         const attendeesId = attendees.map(attendee => attendee._id)
         const meeting = new Meeting({

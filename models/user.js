@@ -42,8 +42,11 @@ const userSchema = new Schema({
 
 userSchema.methods.addMeeting = function(meetingId) {
     console.log(`Adding meeting ${meetingId} to user ${this.name}`)
-    this.meetings.push(meetingId)
-    return this.save()
+    if (!this.meetings.includes(meetingId.toString())) {
+        this.meetings.push(meetingId)
+        return this.save()
+    }
+    throw new Error('Meeting already added')
 }
 
 userSchema.methods.removeMeeting = function(meetingId) {
