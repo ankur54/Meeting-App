@@ -8,10 +8,10 @@ router.get('/', meetingController.getMeetings)
 
 router.post('/add', meetingController.postCreateMeeting)
 
-router.post('/del-user', meetingController.removeUserFromMeeting)
+router.patch('/del-user', meetingController.removeUserFromMeeting)
 
-router.post('/add-user', meetingController.addUserToMeeting)
+router.patch('/add-user', meetingController.addUserToMeeting)
 
-router.post('/filter', meetingController.filterMeetings)
+router.get('/filter', meetingController.filterMeetings)
 
 module.exports = router
