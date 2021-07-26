@@ -1,7 +1,5 @@
 const express = require('express')
 const mongoose = require('mongoose')
-const session = require('express-session')
-const mongoDBStore = require('connect-mongodb-session')(session)
 
 const authRouter = require('./routes/auth')
 const meetRouter = require('./routes/meetings')
@@ -11,25 +9,22 @@ const MONGODB_URI = 'mongodb://localhost:27017/Calendar'
 
 // initializing the middlewares
 const app = express()
-const store = mongoDBStore({
-    uri: MONGODB_URI,
-    collection: 'session'
-})
-const expressSession = session({
-    secret: 'doreamon',
-    resave: false,
-    saveUninitialized: false,
-    store: store,
-})
 
 
 // using the middlewares
+
+// middleware to get request json object
 app.use(express.json())
-app.use(express.urlencoded())
-app.use(expressSession)
+// middleware to CORS error
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*')
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE')
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    next()
+})
 
 // branching requests to respective routes
-app.use(authRouter)
+app.use('/auth', authRouter)
 app.use("/meeting", meetRouter)
 app.use("/team", teamRouter)
 

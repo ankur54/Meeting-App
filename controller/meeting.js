@@ -85,9 +85,9 @@ const getMeetings = async (req, res) => {
             return res.status(404).send({ message: 'No user selected' })
         
         let user = req.session.user
-        const date = req.body.date
-        const startTime = req.body.startTime
-        const endTime = req.body.endTime
+        const date = req.query.date
+        const startTime = req.query.startTime
+        const endTime = req.query.endTime
         user = await User.populate(user, {
                                     path: 'meetings',
                                     match: { 
@@ -108,12 +108,10 @@ const getMeetings = async (req, res) => {
 
 const filterMeetings = async (req, res) => {
     try {
-        const phrase = req.body.phrase
-        const user = req.session.user
-        if (!user) 
-            res.status(404).send({ message: 'User not found!' })
+        const phrase = req.query.phrase
+        const userId = req.userId
 
-        const full_user = await User.populate(user, {
+        const full_user = await User.findById(userId).populate({
             path: 'meetings',
             match: {
                 $or: [

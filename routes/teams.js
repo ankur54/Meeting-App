@@ -1,13 +1,14 @@
 const express = require('express')
+const teamController = require('../controller/teams')
 
 const router = express.Router()
 
-router.get('/', meetingController.getMeetings)
+router.get('/', teamController.getTeams)
 
-router.post('/add', meetingController.postCreateMeeting)
+router.post('/add', teamController.postCreateTeam)
 
-router.patch('/del-user', meetingController.removeUserFromMeeting)
+router.patch('/del-user', teamController.removeUserFromTeam)
 
-router.patch('/add-user', meetingController.addUserToMeeting)
+router.patch('/add-user', teamController.addUserToTeam)
 
 module.exports = router

@@ -1,6 +1,7 @@
 const express = require('express')
 
 const meetingController = require('../controller/meeting')
+const isAuth = require('../middleware/isAuth')
 
 const router = express.Router()
 
@@ -12,6 +13,6 @@ router.patch('/del-user', meetingController.removeUserFromMeeting)
 
 router.patch('/add-user', meetingController.addUserToMeeting)
 
-router.get('/filter', meetingController.filterMeetings)
+router.get('/filter', isAuth, meetingController.filterMeetings)
 
 module.exports = router

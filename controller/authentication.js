@@ -1,6 +1,7 @@
 const User = require('../models/user')
 
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 
 const postSignup = async (req, res) => {
     try {
@@ -34,30 +35,29 @@ const postLogin = async (req, res) => {
     try {
         const email = req.body.email
         const password = req.body.password
+
+        console.log(typeof email, typeof password)
     
         const existingUser = await User.findOne({ email: email })
         if (!existingUser) throw new Error ('No user with such email exists!')
 
         const doMatch = await bcrypt.compare(password, existingUser.password)
         if (doMatch) {
-            req.session.isLoggedIn = true
-            req.session.user = existingUser
-            await req.session.save()
-            return res.status(200).send(existingUser)
+            const token = jwt.sign({
+                email,
+                id: existingUser._id.toString()
+            }, 'thisismysuperlongsecretkey',
+            { expiresIn: '1h' }
+            )
+
+            return res.status(201).json({
+                token,
+                userId: existingUser._id.toString()
+            })
         }
     }
     catch (err) {
         return res.status(500).send({ error: err.message })
-    }
-}
-
-const postLogout = async (req, res) => {
-    try {
-        await req.session.destroy()
-        res.status(200).send({ message: 'User logged out!' })
-    }
-    catch (err) {
-        res.status(500).send({ error: err.message })
     }
 }
 

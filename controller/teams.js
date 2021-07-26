@@ -85,9 +85,9 @@ const getTeams = async (req, res) => {
             return res.status(404).send({ message: 'No user selected' })
         
         let user = req.session.user
-        const date = req.body.date
-        const startTime = req.body.startTime
-        const endTime = req.body.endTime
+        const date = req.query.date
+        const startTime = req.query.startTime
+        const endTime = req.query.endTime
         user = await User.populate(user, {
                                     path: 'teams',
                                     match: { 
