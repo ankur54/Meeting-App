@@ -63,6 +63,5 @@ const postLogin = async (req, res) => {
 
 module.exports = {
     postSignup,
-    postLogin,
-    postLogout
+    postLogin
 }
