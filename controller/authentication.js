@@ -8,19 +8,15 @@ const postSignup = async (req, res) => {
         const name = req.body.name
         const email = req.body.email
         const password = req.body.password
-        const dateOfBirth = req.body.dateOfBirth
-        const department = req.body.department
     
         const existingUser = await User.findOne({ email: email, name: name })
-        if (existingUser) return res.send({ message: 'User already exists!' })
+        if (existingUser) return res.status(400).json({ message: 'User already exists!' })
     
         const hashedPassword = await bcrypt.hash(password, 12)
         const newUser = new User({
             name, 
             email, 
-            password: hashedPassword, 
-            dateOfBirth, 
-            department
+            password: hashedPassword
         })
     
         const savedUser = await newUser.save()
@@ -35,8 +31,6 @@ const postLogin = async (req, res) => {
     try {
         const email = req.body.email
         const password = req.body.password
-
-        console.log(typeof email, typeof password)
     
         const existingUser = await User.findOne({ email: email })
         if (!existingUser) throw new Error ('No user with such email exists!')
@@ -52,7 +46,9 @@ const postLogin = async (req, res) => {
 
             return res.status(201).json({
                 token,
-                userId: existingUser._id.toString()
+                userId: existingUser._id.toString(),
+                userName: existingUser.name,
+                userEmail: existingUser.email
             })
         }
     }

@@ -16,15 +16,14 @@ const userSchema = new Schema({
     },
     dateOfJoining: {
         type: Date,
-        default: new Date(),
+        default: new Date()
     },
     dateOfBirth: {
         type: Date,
-        required: true
+        default: new Date()
     },
     department: {
         type: String,
-        required: true,
     },
     meetings: [
         {

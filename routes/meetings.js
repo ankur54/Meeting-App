@@ -5,13 +5,13 @@ const isAuth = require('../middleware/isAuth')
 
 const router = express.Router()
 
-router.get('/', meetingController.getMeetings)
+router.get('/', isAuth, meetingController.getMeetings)
 
-router.post('/add', meetingController.postCreateMeeting)
+router.post('/add', isAuth, meetingController.postCreateMeeting)
 
-router.patch('/del-user', meetingController.removeUserFromMeeting)
+router.patch('/del-user', isAuth, meetingController.removeUserFromMeeting)
 
-router.patch('/add-user', meetingController.addUserToMeeting)
+router.patch('/add-user', isAuth, meetingController.addUserToMeeting)
 
 router.get('/filter', isAuth, meetingController.filterMeetings)
 
