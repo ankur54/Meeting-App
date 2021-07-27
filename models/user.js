@@ -18,13 +18,6 @@ const userSchema = new Schema({
         type: Date,
         default: new Date()
     },
-    dateOfBirth: {
-        type: Date,
-        default: new Date()
-    },
-    department: {
-        type: String,
-    },
     meetings: [
         {
             type: Schema.Types.ObjectId,

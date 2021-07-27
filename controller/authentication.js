@@ -3,6 +3,16 @@ const User = require('../models/user')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
+const getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find({}, 'name email _id')
+        return res.status(201).json(users)
+    }
+    catch (err) {
+
+    }
+}
+
 const postSignup = async (req, res) => {
     try {
         const name = req.body.name
@@ -20,7 +30,7 @@ const postSignup = async (req, res) => {
         })
     
         const savedUser = await newUser.save()
-        return res.status(201).send(savedUser)
+        return res.status(201).json({ message: 'User saved' })
     }
     catch (err) {
         return res.status(500).send({ error: err.message })
@@ -59,5 +69,6 @@ const postLogin = async (req, res) => {
 
 module.exports = {
     postSignup,
-    postLogin
+    postLogin,
+    getAllUsers
 }

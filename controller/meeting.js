@@ -42,10 +42,7 @@ const addUserToMeeting = async (req, res) => {
 
 const postCreateMeeting = async (req, res) => {
     try {
-        if (!req.session.user) 
-            return res.status(404).send({ message: 'No user selected' })
-        
-        const user = req.session.user
+        const user = await User.findById(req.userId)
         const title = req.body.title
         const description = req.body.description
         const date = req.body.date
@@ -60,7 +57,6 @@ const postCreateMeeting = async (req, res) => {
         attendeesEmail = attendeesEmail.filter((email, idx) => attendeesEmail.indexOf(email) === idx)
         const attendees = await User.find({email: { $in: attendeesEmail }})
 
-        const attendeesId = attendees.map(attendee => attendee._id)
         const meeting = new Meeting({
             title,
             description,
@@ -68,27 +64,25 @@ const postCreateMeeting = async (req, res) => {
             startTime,
             endTime,
             organizer: user._id,
-            attendees: attendeesId
+            attendees
         })
         const savedMeeting = await meeting.save()
         attendees.forEach(attendee => attendee.addMeeting(savedMeeting._id))
         res.status(200).send({ message: 'Meeting created successfully' })
     }
     catch (err) {
-        res.status(404).send({ error: err.message })
+        res.status(404).json({ error: err.message })
     }
 }
 
 const getMeetings = async (req, res) => {
     try {
-        if (!req.session.user) 
-            return res.status(404).send({ message: 'No user selected' })
-        
-        let user = req.session.user
         const date = req.query.date
-        const startTime = req.query.startTime
-        const endTime = req.query.endTime
-        user = await User.populate(user, {
+        const startTime = req.query.startTime || '00:00'
+        const endTime = req.query.endTime || '23:59'
+
+        const user = await User.findById(req.userId)
+                                .populate({
                                     path: 'meetings',
                                     match: { 
                                         date: date,
@@ -96,10 +90,9 @@ const getMeetings = async (req, res) => {
                                             $gte: startTime,
                                             $lte: endTime
                                         }
-                                    }
+                                    },
                                 })
-        
-        res.status(200).send(user.meetings)
+        res.status(200).json(user.meetings)
     }
     catch(err) {
         res.status(404).send({ error: err.message })

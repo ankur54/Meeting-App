@@ -27,22 +27,27 @@ const meetingSchema = new Schema({
     },
     attendees: [
         {
-            type: Schema.Types.ObjectId,
-            ref: 'User'
+            id: {
+                type: Schema.Types.ObjectId,
+                ref: 'User'
+            },
+            name: String,
+            email: String
         }
     ]
 })
 
-meetingSchema.methods.addAttendee = function (attendeeId) {
-    if (!this.attendees.includes(attendeeId.toString())) {
-        this.attendees.push(attendeeId)
+meetingSchema.methods.addAttendee = function (user) {
+    const present = !!this.attendees.find(attendee => attendee.id === user.id)
+    if (!present) {
+        this.attendees.push(attendee)
         return this.save()
     }
     throw new Error('User already present')
 }
 
-meetingSchema.methods.removeAttendee = function (attendeeId) {
-    const idx = this.attendees.indexOf(attendeeId)
+meetingSchema.methods.removeAttendee = function (user) {
+    const idx = !!this.attendees.findIndex(attendee => attendee.id === user.id)
     if (idx > -1) {
         this.attendees.splice(idx, 1)
         return this.save()
