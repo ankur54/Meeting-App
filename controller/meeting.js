@@ -1,5 +1,6 @@
 const User = require('../models/user')
 const Meeting = require('../models/meeting')
+const io = require('../utils/socket-io')
 
 
 const removeUserFromMeeting = async (req, res) => {
@@ -68,6 +69,7 @@ const postCreateMeeting = async (req, res) => {
         })
         const savedMeeting = await meeting.save()
         attendees.forEach(attendee => attendee.addMeeting(savedMeeting._id))
+        io.getIO().emit('meetings', { action: 'CREATE', meeting: savedMeeting })
         res.status(200).send({ message: 'Meeting created successfully' })
     }
     catch (err) {
