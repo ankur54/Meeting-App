@@ -6,16 +6,15 @@ const io = require('../utils/socket-io')
 const removeUserFromMeeting = async (req, res) => {
     try {
         const userEmail = req.body.email
-        const meetingId = req.body.meetingId
+        const meetingId = req.params.meetingId
     
-        const user = await User.findOne({email: userEmail})
-        const meeting = await Meeting.findById(meetingId)
-
-        console.log(user._id, meeting._id)
+        let user = await User.findOne({email: userEmail})
+        let meeting = await Meeting.findById(meetingId)
     
-        await meeting.removeAttendee(user._id)
-        await user.removeMeeting(meeting._id)
+        meeting = await meeting.removeAttendee(user._id)
+        user = await user.removeMeeting(meetingId)
 
+        io.getIO().emit('meetings', { action: 'REMOVE USER', meeting, user })
         res.status(200).send({ message: 'Meeting edited successfully' })
     }
     catch (err) {
@@ -26,24 +25,25 @@ const removeUserFromMeeting = async (req, res) => {
 const addUserToMeeting = async (req, res) => {
     try {
         const userEmail = req.body.email
-        const meetingId = req.body.meetingId
+        const meetingId = req.params.meetingId
     
-        const user = await User.findOne({email: userEmail})
-        const meeting = await Meeting.findById(meetingId)
+        let user = await User.findOne({ email: userEmail })
+        let meeting = await Meeting.findById(meetingId)
     
-        await meeting.addAttendee(user._id)
-        await user.addMeeting(meeting._id)
-
-        res.status(200).send({ message: 'Meeting edited successfully' })
+        meeting = await meeting.addAttendee(user)
+        user = await user.addMeeting(meeting._id)
+        
+        io.getIO().emit('meetings', { action: 'ADD USER', meeting, user })
+        res.status(204).send({ message: 'Meeting edited successfully' })
     }
     catch (err) {
-        res.status(404).send({ error: err.message })
+        res.status(400).send({ error: err.message })
     }
 }
 
 const postCreateMeeting = async (req, res) => {
     try {
-        const user = await User.findById(req.userId)
+        const organizer = await User.findById(req.userId)
         const title = req.body.title
         const description = req.body.description
         const date = req.body.date
@@ -54,7 +54,7 @@ const postCreateMeeting = async (req, res) => {
         // check if all attendees are valid
         // if valid --> replace with user object
         // [ TO DO ]: else --> show error
-        attendeesEmail.push(user.email)
+        attendeesEmail.push(organizer.email)
         attendeesEmail = attendeesEmail.filter((email, idx) => attendeesEmail.indexOf(email) === idx)
         const attendees = await User.find({email: { $in: attendeesEmail }})
 
@@ -64,7 +64,7 @@ const postCreateMeeting = async (req, res) => {
             date,
             startTime,
             endTime,
-            organizer: user._id,
+            organizer,
             attendees
         })
         const savedMeeting = await meeting.save()

@@ -42,12 +42,10 @@ userSchema.methods.addMeeting = function(meetingId) {
 }
 
 userSchema.methods.removeMeeting = function(meetingId) {
-    const idx = this.meetings.indexOf(meetingId)
-    if (idx > -1) {
-        this.meetings.splice(idx, 1);
-        return this.save()
-    }
-    throw new Error('Meeting was not found')
+    this.meetings = this.meetings.filter(
+		(meeting) => meeting._id.toString() !== meetingId.toString()
+    );
+    return this.save()
 }
 
 module.exports = mongoose.model('User', userSchema);

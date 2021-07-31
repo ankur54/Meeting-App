@@ -9,9 +9,9 @@ router.get('/', isAuth, meetingController.getMeetings)
 
 router.post('/add', isAuth, meetingController.postCreateMeeting)
 
-router.patch('/del-user', isAuth, meetingController.removeUserFromMeeting)
+router.patch('/del-user/:meetingId', isAuth, meetingController.removeUserFromMeeting)
 
-router.patch('/add-user', isAuth, meetingController.addUserToMeeting)
+router.patch('/add-user/:meetingId', isAuth, meetingController.addUserToMeeting)
 
 router.get('/filter', isAuth, meetingController.filterMeetings)
 
